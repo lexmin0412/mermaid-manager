@@ -9,16 +9,11 @@
 
 <script lang="ts">
   import MainMenu from '$/components/MainMenu.svelte';
-  import McWrapper from '$/components/McWrapper.svelte';
-  import { Button } from '$/components/ui/button';
   import { Separator } from '$/components/ui/separator';
-  import { Switch } from '$/components/ui/switch';
-  import { dismissPromotion, getActivePromotion } from '$lib/util/promos/promo';
-  import { urlsStore } from '$lib/util/state';
+  import { getActivePromotion } from '$lib/util/promos/promo';
   import { MCBaseURL } from '$lib/util/util';
   import type { ComponentProps, Snippet } from 'svelte';
   import MermaidIcon from '~icons/custom/mermaid';
-  import CloseIcon from '~icons/material-symbols/close-rounded';
   import GithubIcon from '~icons/mdi/github';
   import DropdownNavMenu from './DropdownNavMenu.svelte';
 
@@ -57,7 +52,7 @@
   };
 </script>
 
-{#if activePromotion}
+<!-- {#if activePromotion}
   <div class="top-bar z-10 flex h-fit w-full bg-primary">
     <div
       class="flex flex-grow"
@@ -81,7 +76,7 @@
       </Button>
     {/snippet}
   </div>
-{/if}
+{/if} -->
 
 <nav class="z-50 flex p-4 sm:p-6">
   <div class="flex flex-1 items-center gap-2">
@@ -98,7 +93,7 @@
         Live Editor
       </a>
 
-      <McWrapper>
+      <!-- <McWrapper>
         <div class="hidden items-center justify-center gap-4 md:flex">
           <Separator orientation="vertical" />
           <Switch
@@ -125,7 +120,7 @@
               >- more features, no account required</span>
           </a>
         </div>
-      </McWrapper>
+      </McWrapper> -->
     </div>
   </div>
   <div

@@ -1,12 +1,8 @@
 <script>
   import { buttonVariants } from '$/components/ui/button';
   import * as Dialog from '$/components/ui/dialog';
-  import { Separator } from '$/components/ui/separator';
-  import { env } from '$/util/env';
-  import { urlsStore } from '$/util/state';
   import ShareIcon from '~icons/material-symbols/share';
   import CopyInput from './CopyInput.svelte';
-  import MermaidChartIcon from './MermaidChartIcon.svelte';
 </script>
 
 <Dialog.Root>
@@ -30,7 +26,7 @@
           The content of the diagrams you create never leaves your browser.
         </Dialog.Description>
       </div>
-      {#if env.isEnabledMermaidChartLinks}
+      <!-- {#if env.isEnabledMermaidChartLinks}
         <Separator />
         <div class="flex flex-col gap-2">
           <h2 class="flex items-center gap-2">
@@ -42,7 +38,7 @@
             Opens the Mermaid Chart Playground with Mermaid AI, Visual Editor, and more.
           </Dialog.Description>
         </div>
-      {/if}
+      {/if} -->
     </div>
   </Dialog.Content>
 </Dialog.Root>

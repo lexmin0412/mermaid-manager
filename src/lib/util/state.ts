@@ -40,7 +40,7 @@ const urlParseFailedState = `flowchart TD
     E -->|No| G{Did you copy <br/> the complete URL?}
     G --> |Yes| D
     G --> |"No :("| H(Try using the Timeline tab in History <br/>from same browser you used to create the diagram.)
-    click D href "https://github.com/mermaid-js/mermaid-live-editor/issues/new?assignees=&labels=bug&template=bug_report.md&title=Broken%20link" "Raise issue"`;
+    click D href "https://github.com/lexmin0412/mermaid-manager/issues/new?assignees=&labels=bug&template=bug_report.md&title=Broken%20link" "Raise issue"`;
 
 // inputStateStore handles all updates and is shared externally when exporting via URL, History, etc.
 export const inputStateStore = persist(writable(defaultState), localStorage(), 'codeStore');

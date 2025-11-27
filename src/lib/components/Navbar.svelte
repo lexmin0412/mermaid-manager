@@ -31,8 +31,8 @@
   const githubLinks: Links = [
     { title: 'Mermaid JS', href: 'https://github.com/mermaid-js/mermaid' },
     {
-      title: 'Mermaid Live Editor',
-      href: 'https://github.com/mermaid-js/mermaid-live-editor'
+      title: 'Mermaid Manager',
+      href: 'https://github.com/lexmin0412/mermaid-manager'
     },
     {
       title: 'Mermaid CLI',

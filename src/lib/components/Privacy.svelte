@@ -20,7 +20,7 @@
     <p>They're only stored in the URL and your browser's local storage.</p>
     <p>
       This is a fully open source, client-side app deployed on <a
-        href="https://github.com/mermaid-js/mermaid-live-editor/deployments"
+        href="https://github.com/lexmin0412/mermaid-manager/deployments"
         class="underline"
         target="_blank">GitHub Pages</a>
       that works offline as a

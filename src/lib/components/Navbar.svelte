@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import { logEvent, plausible } from '$lib/util/stats';
+  import { logEvent } from '$lib/util/stats';
   import { version } from 'mermaid/package.json';
 
   void logEvent('version', {
@@ -10,7 +10,6 @@
 <script lang="ts">
   import MainMenu from '$/components/MainMenu.svelte';
   import { Separator } from '$/components/ui/separator';
-  import { getActivePromotion } from '$lib/util/promos/promo';
   import { MCBaseURL } from '$lib/util/util';
   import type { ComponentProps, Snippet } from 'svelte';
   import MermaidIcon from '~icons/custom/mermaid';
@@ -39,17 +38,6 @@
       href: 'https://github.com/mermaid-js/mermaid-cli'
     }
   ];
-
-  let activePromotion = $state(getActivePromotion());
-
-  const trackBannerClick = () => {
-    if (!plausible || !activePromotion) {
-      return;
-    }
-    logEvent('bannerClick', {
-      promotion: activePromotion.id
-    });
-  };
 </script>
 
 <!-- {#if activePromotion}

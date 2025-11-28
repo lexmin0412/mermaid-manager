@@ -19,9 +19,13 @@
   import View from '$/components/View.svelte';
   import type { EditorMode, Tab } from '$/types';
   import { PanZoomState } from '$/util/panZoom';
-  import { stateStore, updateCodeStore, urlsStore } from '$/util/state';
+  import { stateStore, updateCodeStore, inputStateStore } from '$/util/state';
   import { logEvent } from '$/util/stats';
   import { initHandler } from '$/util/util';
+  import * as Popover from '$/components/ui/popover';
+  import { waitForRender } from '$lib/util/autoSync';
+  import { toBase64 } from 'js-base64';
+  import { version as FAVersion } from '@fortawesome/fontawesome-free/package.json';
   import { onMount } from 'svelte';
   import CodeIcon from '~icons/custom/code';
   import HistoryIcon from '~icons/material-symbols/history';
@@ -66,6 +70,107 @@
       editorPane?.resize(50);
     }
   });
+
+  const FONT_AWESOME_URL = `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/${FAVersion}/css/all.min.css`;
+
+  const getFileName = (extension: string) =>
+    `mermaid-diagram-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${extension}`;
+
+  const getSvgElement = () => {
+    const svgElement = document.querySelector('#container svg')?.cloneNode(true) as HTMLElement;
+    svgElement.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    return svgElement;
+  };
+
+  const getBase64SVG = (svg?: HTMLElement, width?: number, height?: number): string => {
+    if (svg) {
+      svg = svg.cloneNode(true) as HTMLElement;
+    }
+    if (height) {
+      svg?.setAttribute('height', `${height}px`);
+    }
+    if (width) {
+      svg?.setAttribute('width', `${width}px`);
+    }
+    if (!svg) {
+      svg = getSvgElement();
+    }
+    svg.style.backgroundColor = window
+      .getComputedStyle(document.body)
+      .getPropertyValue('--background');
+    const svgString = svg.outerHTML
+      .replaceAll('<br>', '<br/>')
+      .replaceAll(/<img([^>]*)>/g, (m, g) => `<img ${g} />`);
+    return toBase64(
+      `<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet href="${FONT_AWESOME_URL}" type="text/css"?>\n${svgString}`
+    );
+  };
+
+  const simulateDownload = (download: string, href: string): void => {
+    const a = document.createElement('a');
+    a.download = download;
+    a.href = href;
+    a.click();
+    a.remove();
+  };
+
+  const exportImage = async (
+    event: Event,
+    exporter: (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => () => void
+  ) => {
+    $inputStateStore.panZoom = false;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await waitForRender();
+    const canvas = document.createElement('canvas');
+    const svg = document.querySelector<HTMLElement>('#container svg');
+    if (!svg) {
+      throw new Error('svg not found');
+    }
+    const box = svg.getBoundingClientRect();
+    const multiplier = 2;
+    canvas.width = box.width * multiplier;
+    canvas.height = box.height * multiplier;
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('context not found');
+    }
+    context.fillStyle = window.getComputedStyle(document.body).getPropertyValue('--background');
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    const image = new Image();
+    image.addEventListener('load', () => {
+      exporter(context, image)();
+      $inputStateStore.panZoom = true;
+    });
+    image.src = `data:image/svg+xml;base64,${getBase64SVG(svg, canvas.width, canvas.height)}`;
+    setTimeout(() => {
+      if (!$inputStateStore.panZoom) {
+        $inputStateStore.panZoom = true;
+      }
+    }, 2000);
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  const downloadImage = (context: CanvasRenderingContext2D, image: HTMLImageElement) => {
+    return () => {
+      const { canvas } = context;
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      simulateDownload(
+        getFileName('png'),
+        canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream')
+      );
+    };
+  };
+
+  const onDownloadPNG = async (event: Event) => {
+    await exportImage(event, downloadImage);
+    logEvent('download', { type: 'png' });
+  };
+
+  const onDownloadSVG = () => {
+    simulateDownload(getFileName('svg'), `data:image/svg+xml;base64,${getBase64SVG()}`);
+    logEvent('download', { type: 'svg' });
+  };
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
@@ -87,14 +192,20 @@
     </Toggle>
     <Share />
     <McWrapper>
-      <Button
-        variant="accent"
-        size="sm"
-        href={$urlsStore.mermaidChart({ medium: 'save_diagram' }).save}
-        target="_blank">
-        <MermaidChartIcon />
-        Save diagram
-      </Button>
+      <Popover.Root>
+        <Popover.Trigger>
+          <Button variant="accent" size="sm">
+            <MermaidChartIcon />
+            Save diagram
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content class="w-48 p-2">
+          <div class="flex flex-col gap-2">
+            <Button variant="ghost" class="justify-start" onclick={onDownloadPNG}>保存 PNG</Button>
+            <Button variant="ghost" class="justify-start" onclick={onDownloadSVG}>保存 SVG</Button>
+          </div>
+        </Popover.Content>
+      </Popover.Root>
     </McWrapper>
   </Navbar>
 
